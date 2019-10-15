@@ -1,2 +1,2 @@
 # jsDesign
-js 设计模式学习
+js 设计模式学习 haha
