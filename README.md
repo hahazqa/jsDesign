@@ -3,13 +3,14 @@ js 设计模式学习
 ## 1. this 指向的类型
 this 在函数的指向有以下几种场景：
 1.  作为构造函数被 new 调用；
-    - 1.1 new绑定  ``` javascript
+    - 1.1 new绑定 
+    ``` javascript
         function Foo() {
             console.log(this)
         }
         var bar = new Foo()       // 输出: Foo 实例，this 就是 bar
 
-      ``` 
+    ``` 
       实际上使用 new 调用构造函数时，会依次执行下面的操作：
       1.    创造一个新对象；
       2.    构造函数的 prototype 被赋值给新对象的 __proto__；
