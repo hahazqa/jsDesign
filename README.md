@@ -85,3 +85,115 @@ this 在函数的指向有以下几种场景：
         }
 
      ```
+     主要是利用闭包来保持着作用域：
+     ``` javascript
+        function add() {
+            var num = 0
+            return function(a) {
+                return num = num + a
+            }
+        }
+        var adder = add()
+
+        adder(1)     // 输出: 1
+        adder(2)     // 输出: 3
+
+     ```
+1.  柯里化     
+    柯里化（Currying），又称部分求值（Partial Evaluation），是把接受多个参数的原函数变换成接受一个单一参数（原函数的第一个参数）的函数，并且返回一个新函数，新函数能够接受余下的参数，最后返回同原函数一样的结果。
+    - 1.1 柯里化有 3 个常见作用：参数复用,提前返回,延迟计算 / 运行
+    柯里化通用实现:
+    ``` javascript
+        // ES5 方式
+        function currying(fn) {
+            var rest1 = Array.prototype.slice.call(arguments)
+            rest1.shift()
+            return function() {
+                var rest2 = Array.prototype.slice.call(arguments)
+                return fn.apply(null, rest1.concat(rest2))
+            }
+        }
+
+        // ES6 方式
+        function currying(fn, ...rest1) {
+            return function(...rest2) {
+                return fn.apply(null, rest1.concat(rest2))
+            }
+        }
+
+    ```
+    用它将一个 sayHello  函数柯里化试试：
+    ``` javascript
+
+        // 接上面
+        function sayHello(name, age, fruit) {
+        console.log(`我叫 ${name},我 ${age} 岁了, 我喜欢吃 ${fruit}`)
+        }
+
+        var curryingShowMsg1 = currying(sayHello, '小明')
+        curryingShowMsg1(22, '苹果')           // 输出: 我叫 小明,我 22 岁了, 我喜欢吃 苹果
+
+        var curryingShowMsg2 = currying(sayHello, '小衰', 20)
+        curryingShowMsg2('西瓜')               // 输出: 我叫 小衰,我 20 岁了, 我喜欢吃 西瓜
+
+    ```
+2.  反柯里化
+    柯里化是固定部分参数，返回一个接受剩余参数的函数，也称为部分计算函数，目的是为了缩小适用范围，创建一个针对性更强的函数。核心思想是把多参数传入的函数拆成单参数（或部分）函数，内部再返回调用下一个单参数（或部分）函数，依次处理剩余的参数。
+    而反柯里化，从字面讲，意义和用法跟函数柯里化相比正好相反，扩大适用范围，创建一个应用范围更广的函数。使本来只有特定对象才适用的方法，扩展到更多的对象。
+    反柯里化通用实现：
+    ``` javascript
+        // ES5 方式
+        Function.prototype.unCurrying = function() {
+            var self = this
+            return function() {
+                var rest = Array.prototype.slice.call(arguments)
+                return Function.prototype.call.apply(self, rest)
+            }
+        }
+
+        // ES6 方式
+        Function.prototype.unCurrying = function() {
+            const self = this
+            return function(...rest) {
+                return Function.prototype.call.apply(self, rest)
+            }
+        }
+
+    ```
+    如果你觉得把函数放在 Function 的原型上不太好，也可以这样：
+
+    ``` javascript
+
+        // ES5 方式
+        function unCurrying(fn) {
+            return function (tar) {
+                var rest = Array.prototype.slice.call(arguments)
+                rest.shift()
+                return fn.apply(tar, rest)
+            }
+        }
+
+        // ES6 方式
+        function unCurrying(fn) {
+            return function(tar, ...argu) {
+                return fn.apply(tar, argu)
+            }
+        }
+    ```
+    下面简单试用一下反柯里化通用实现，我们将 Array 上的 push  方法借出来给 arguments 这样的类数组增加一个元素：
+    ``` javascript
+
+        // 接上面
+        var push = unCurrying(Array.prototype.push)
+
+        function execPush() {
+            push(arguments, 4)
+            console.log(arguments)
+        }
+
+        execPush(1, 2, 3)    // 输出: [1, 2, 3, 4]
+
+    ```
+    可以这样理解柯里化和反柯里化的区别：
+    柯里化是在运算前提前传参，可以传递多个参数；
+    反柯里化是延迟传参，在运算时把原来已经固定的参数或者 this 上下文等当作参数延迟到未来传递。
