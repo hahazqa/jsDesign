@@ -99,7 +99,7 @@
 // const visitor3 = Singleton.getInstance();
 
 // console.log(visitor1 === visitor2); // true
-// console.log(visitor1 === visitor3); // true
+// console.log(visitor1 === visitor3); // true 11
 
 class FuncClass {
     constructor() { this.bar = 'bar' }
